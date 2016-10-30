@@ -22,7 +22,7 @@ sabnzbd_dir = ::File.join(home_dir, '.sabnzbd')
 
 smb_val = search(:sabnzbd,'id:smb').first
 network_val = search(:sabnzbd,'id:network').first
-
+sabnzbd_settings = search(:sabnzbd,'id:data_bag_item_sabnzbd_settings').first
 package 'software-properties-common'
 
 admin 'admin' do
@@ -72,16 +72,16 @@ template ::File.join(sabnzbd_dir,'sabnzbd.ini') do
   owner admin_user['username']
   group admin_user['username']
   variables({
-      :cleanup_list => node[:sabnzbd][:cleanup_list],
-      :api_key => node[:sabnzbd][:api_key],
-      :dirscan_dir => node[:sabnzbd][:dirscan_dir],
-      :password => node[:sabnzbd][:password],
-      :port => node[:sabnzbd][:port],
-      :host => node[:sabnzbd][:host],
-      :download_dir => node[:sabnzbd][:download_dir],
-      :complete_dir => node[:sabnzbd][:complete_dir],
-      :servers => node[:sabnzbd][:servers],
-      :categories => node[:sabnzbd][:categories]
+      :cleanup_list => sabnzbd_settings['cleanup_list'],
+      :api_key => sabnzbd_settings['api_key'],
+      :dirscan_dir => "/mnt/#{smb_val['mount_name']}",
+      :password => sabnzbd_settings['password'],
+      :port => sabnzbd_settings['port'],
+      :host => sabnzbd_settings['host'],
+      :download_dir => "/mnt/#{smb_val['mount_name']}/Downloads/Incomplete",
+      :complete_dir => "/mnt/#{smb_val['mount_name']}/Downloads/complete",
+      :servers => sabnzbd_settings['servers'],
+      :categories => sabnzbd_settings['categories']
   })
 end
 
