@@ -19,6 +19,8 @@
 admin_user = search(:sabnzbd,'id:admin').first
 home_dir = ::File.join("/home", admin_user['username'])
 sabnzbd_dir = ::File.join(home_dir, '.sabnzbd')
+ssh_dir = ::File.join(home_dir, ".ssh","");
+auth_keys = ::File.join(home_dir, ".ssh","authorized_keys");
 
 smb_val = search(:sabnzbd,'id:smb').first
 network_val = search(:sabnzbd,'id:network').first
@@ -28,6 +30,9 @@ package 'software-properties-common'
 admin 'admin' do
   username admin_user['username']
   public_keys admin_user['public_keys']
+  home_dir home_dir
+  ssh_dir ssh_dir
+  auth_keys auth_keys
   action :create
 end
 
