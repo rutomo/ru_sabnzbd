@@ -16,3 +16,75 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+admin_user = search(:sabnzbd,'id:admin').first
+home_dir = ::File.join("/home", admin_user['username'])
+sabnzbd_dir = ::File.join(home_dir, '.sabnzbd')
+
+smb_val = search(:sabnzbd,'id:smb').first
+network_val = search(:sabnzbd,'id:network').first
+
+package 'software-properties-common'
+
+admin 'admin' do
+  username admin_user['username']
+  public_keys admin_user['public_keys']
+  action :create
+end
+
+smb 'smb' do
+  smb_username smb_val['smb_username']
+  smb_password smb_val['smb_password']
+  mount_network_drive smb_val['mount_network_drive']
+  mount_name smb_val['mount_name']
+  username admin_user['username']
+end
+
+directory sabnzbd_dir do
+   recursive true
+   mode '0755'
+   user admin_user['username']
+ 	 group admin_user['username']
+end
+
+bash 'add_external_repo' do
+  user "root"
+  cwd "root"
+  code <<-EOF
+    add-apt-repository ppa:jcfp/ppa
+    add-apt-repository ppa:jcfp/nobetas
+    apt-get update
+    apt-get -y install sabnzbdplus
+    EOF
+end
+template "/etc/default/sabnzbdplus" do
+  source "sabnzbdplus.erb"
+  mode "0644"
+  owner "root"
+  group "root"
+  variables({
+      :username => admin_user['username'],
+      :home_dir => home_dir
+  })
+end
+template ::File.join(sabnzbd_dir,'sabnzbd.ini') do
+  source 'sabnzbd.erb'
+  mode '0755'
+  owner admin_user['username']
+  group admin_user['username']
+  variables({
+      :cleanup_list => node[:sabnzbd][:cleanup_list],
+      :api_key => node[:sabnzbd][:api_key],
+      :dirscan_dir => node[:sabnzbd][:dirscan_dir],
+      :password => node[:sabnzbd][:password],
+      :port => node[:sabnzbd][:port],
+      :host => node[:sabnzbd][:host],
+      :download_dir => node[:sabnzbd][:download_dir],
+      :complete_dir => node[:sabnzbd][:complete_dir],
+      :servers => node[:sabnzbd][:servers],
+      :categories => node[:sabnzbd][:categories]
+  })
+end
+
+service "sabnzbdplus" do
+  action :start
+end

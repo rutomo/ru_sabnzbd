@@ -1,0 +1,23 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-14.04
+
+suites:
+  - name: default
+    data_bags_path: "C:/Chef/data_bags"
+    run_list:
+      - recipe[ru_baseline::default]
+      - recipe[ru_sabnzbd::default]
+    verifier:
+      inspec_tests:
+        - test/recipes
+    attributes:
