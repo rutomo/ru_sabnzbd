@@ -1,18 +1,15 @@
 # ru_sabnzbd Cookbook
 
-TODO: Enter the cookbook description here.
-
-e.g.
-This cookbook makes your favorite breakfast sandwich.
+This cookbook is used to setup sabnzbdplus on ubuntu/debian based machine. Currently, it only supports for local machine within your network
 
 ## Requirements
 
-TODO: List your cookbook requirements. Be sure to include any requirements this cookbook has on platforms, libraries, other cookbooks, packages, operating systems, etc.
+Required ru_baseline cookbook for resources
 
 e.g.
 ### Platforms
 
-- SandwichOS
+- ubuntu-14
 
 ### Chef
 
@@ -20,35 +17,72 @@ e.g.
 
 ### Cookbooks
 
-- `toaster` - ru_sabnzbd needs toaster to brown your bagel.
-
 ## Attributes
 
-TODO: List your cookbook attributes here.
-
-e.g.
-### ru_sabnzbd::default
-
-<table>
-  <tr>
-    <th>Key</th>
-    <th>Type</th>
-    <th>Description</th>
-    <th>Default</th>
-  </tr>
-  <tr>
-    <td><tt>['ru_sabnzbd']['bacon']</tt></td>
-    <td>Boolean</td>
-    <td>whether to include bacon</td>
-    <td><tt>true</tt></td>
-  </tr>
-</table>
+There's no attributes required for this cookbook
 
 ## Usage
 
 ### ru_sabnzbd::default
 
-TODO: Write usage instructions for each cookbook.
+Default recipe sets passwordless authentication, install sabnzbdplus, mount your network folder (ideally your file server) and set static IP address. It requires a data bag called sabnzbd and inside there are four data bag items as per below.
+1) admin.json
+```json
+{
+	"id":"admin",
+	"username":"your_username",
+	"public_keys": ["your_public_key"]
+}
+```
+2) network.json
+```json
+{
+	"id":"network",
+	"static_ip":"x.x.x.x",
+	"device_name":"eth0",
+	"mask":"x.x.x.x",
+	"network":"x.x.x.x",
+	"bcast":"x.x.x.x"
+}
+```
+3) sabnzbd.json
+```json
+{
+	"id":"data_bag_item_sabnzbd_settings",
+	"cleanup_list":".sfv, .srr, .nfo, .nbz, md5, nzb, .par, .par2, .lnk, idx, .sub, .url",
+	"api_key":"",
+	"password":"",
+	"port":"8080",
+	"host":"0.0.0.0",
+	"categories": {
+		"tv": {
+			"cat_priority" : "0",
+			"cat_pp" : "3",
+			"cat_name" : "tv",
+			"cat_script" : "Default",
+			"cat_newzbin" : "tv",
+			"cat_dir" : "/tv/*"
+		}
+	},
+	"servers": {
+		"astraweb": {
+			"server_username" : "",
+			"server_enable" : "",
+			"server_host" : "",
+			"server_ssl" : "",
+			"server_fillserver" : "",
+			"server_connections" : "",
+			"server_timeout" : "",
+			"server_password" : "",
+			"server_optional" : "",
+			"server_port" : "",
+			"server_retention" : ""
+		}
+	}
+}
+```
+4) smb.json
+
 
 e.g.
 Just include `ru_sabnzbd` in your node's `run_list`:
@@ -61,20 +95,6 @@ Just include `ru_sabnzbd` in your node's `run_list`:
   ]
 }
 ```
-
-## Contributing
-
-TODO: (optional) If this is a public cookbook, detail the process for contributing. If this is a private cookbook, remove this section.
-
-e.g.
-1. Fork the repository on Github
-2. Create a named feature branch (like `add_component_x`)
-3. Write your change
-4. Write tests for your change (if applicable)
-5. Run the tests, ensuring they all pass
-6. Submit a Pull Request using Github
-
 ## License and Authors
 
-Authors: TODO: List authors
-
+Authors: Rinaldi Utomo
